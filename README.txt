@@ -1,4 +1,4 @@
-fCC_LeaderBoard
+# fCC_LeaderBoard
 
 freeCodeCamp challenge Camper LeaderBoard
 
