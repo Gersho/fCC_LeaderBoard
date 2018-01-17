@@ -1,0 +1,186 @@
+document.addEventListener("DOMContentLoaded", function(event) {
+//react starts on line 40, ReactDOM.render is on line 14
+//first call
+var allTimeCall = new XMLHttpRequest();
+allTimeCall.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        var allTimeData = JSON.parse(this.response); //first part of the data secured
+      //second call
+      var recentCall = new XMLHttpRequest();
+      recentCall.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        var recentData = JSON.parse(this.response); //second part of data secured
+      //available variables are allTimeData and recentData
+      ReactDOM.render(<Main allTime={allTimeData} recent={recentData} />,document.getElementById("react-anchor"));
+       }//end sub if
+    };
+//second call data
+recentCall.open("GET", "https://fcctop100.herokuapp.com/api/fccusers/top/recent", true);
+recentCall.timeout = 2000; 
+recentCall.ontimeout = function (e) {
+    document.getElementById("react-anchor").innerHTML = "Something went wrong, sorry !";
+};
+recentCall.onerror = function () {
+    document.getElementById("react-anchor").innerHTML = "Something went wrong, sorry !";
+};
+recentCall.send();
+       }//end main if
+    }; // end allTimeCall.onreadystatechange
+ //this is the first call data
+allTimeCall.open("GET", "https://fcctop100.herokuapp.com/api/fccusers/top/alltime", true);
+allTimeCall.timeout = 2000;
+allTimeCall.ontimeout = function (e) {
+    document.getElementById("react-anchor").innerHTML = "Something went wrong, sorry !";
+};
+allTimeCall.onerror = function () {
+    document.getElementById("react-anchor").innerHTML = "Something went wrong, sorry !";
+};
+allTimeCall.send();
+  
+  
+
+class Main extends React.Component {
+  //available props
+  //  allTime
+  //  recent
+   constructor(props){
+    super(props);
+        this.handleClick = this.handleClick.bind(this);
+     const recentPodium = this.props.recent.splice(0, 3);
+     const allTimePodium = this.props.allTime.splice(0, 3);
+
+     const recentList = this.props.recent.map((elem,index) => 
+                                              (
+                                              <tbody key={"recent"+ (index+4)}>
+                                           <tr>
+                                             <td>{index+4}</td>
+                                             <td><img className="avatars" src={elem.img} /></td>
+                                             <td className="nickname">{elem.username}</td>
+                                             <td>{elem.recent}</td>
+                                             <td>{elem.alltime}</td>
+                                           </tr>
+                                                </tbody>
+                                              )
+                                             );
+                                              
+     const allTimeList = this.props.allTime.map((elem,index) => 
+                                              (
+                                            <tbody key={"alltime"+ (index+4)}>
+                                           <tr>
+                                             <td>{index+4}</td>
+                                             <td><img className="avatars" src={elem.img} /></td>
+                                             <td className="nickname">{elem.username}</td>
+                                             <td>{elem.alltime}</td>
+                                             <td>{elem.recent}</td>
+                                           </tr>
+                                          </tbody>
+                                              )
+                                             );
+
+     
+ this.state={ allTimeList: allTimeList,
+             recentList: recentList,
+             current: allTimeList,
+             podium: allTimePodium,
+             allTimePodium: allTimePodium,
+             recentPodium: recentPodium };
+  }//end constructor
+
+
+  handleClick(){
+    let newDisplay = this.state.current == this.state.allTimeList ? this.state.recentList : this.state.allTimeList;
+    let newPodium = this.state.podium == this.state.allTimePodium ? this.state.recentPodium : this.state.allTimePodium;
+      this.setState({ current: newDisplay, podium: newPodium });
+      }
+  
+  
+  render() {
+    return(
+          <div> 
+        <div className="maintitle">
+        freeCodeCamp Leaderboard !
+        </div>
+         <div className="maintitle">
+        {this.state.current == this.state.allTimeList ? "AllTime" : "Recent"} Ranking !
+        </div>
+          <Podium podium={this.state.podium}/>
+        
+        <button onClick={this.handleClick}>Switch to {this.state.current == this.state.allTimeList ? "Recent" : "AllTime"} ranking</button>
+        <table><thead><tr><th>#</th><th></th><th>Username</th>
+          <th>{this.state.current == this.state.allTimeList ? "AllTime" : "Recent"}</th>
+          <th>{this.state.current == this.state.allTimeList ? "Recent" : "AllTime"}</th>
+              </tr>
+         </thead>
+          {this.state.current}
+        </table>
+      </div>
+
+    );//end return render
+  }//end render
+ 
+}//end Main class
+
+
+class Podium extends React.Component {
+  render(){
+    return(
+    
+      <div className="podium">
+  
+        <div className="cards" id="first">
+       <img className="topavatars" src={this.props.podium[0].img} />
+         <div>
+             <h4 className="toptext"><b>{this.props.podium[0].username} </b></h4> 
+           <p className="toptext">AllTime: {this.props.podium[0].alltime} </p> 
+           <p className="toptext">Recent: {this.props.podium[0].recent}</p>
+             </div>
+            </div>
+     
+        
+       
+             <div className="cards" id="second">
+       <img className="topavatars" src={this.props.podium[1].img} />
+         <div>
+             <h4 className="toptext"><b>{this.props.podium[1].username} </b></h4> 
+           <p className="toptext">AllTime: {this.props.podium[1].alltime} </p> 
+           <p className="toptext">Recent: {this.props.podium[1].recent}</p>
+             </div>
+            </div>
+          
+   
+          
+          
+                <div className="cards" id="third">
+       <img className="topavatars" src={this.props.podium[2].img} />
+         <div>
+             <h4 className="toptext"><b>{this.props.podium[2].username} </b></h4> 
+           <p className="toptext">AllTime: {this.props.podium[2].alltime} </p> 
+           <p className="toptext">Recent: {this.props.podium[2].recent}</p>
+             </div>
+            </div>
+       
+   
+        
+ 
+   
+        
+      </div>
+    );
+  }
+}//fin Podium class!
+  
+
+  
+}); //fin DOMContentLoaded
+
+/*
+{
+"username":"sjames1958gm",
+"img":"https://avatars1.githubusercontent.com/u/4639625?v=4",
+"alltime":8129,
+"recent":143,
+"lastUpdate":"2017-09-15T10:09:39.830Z"}
+*/
+
+
+
